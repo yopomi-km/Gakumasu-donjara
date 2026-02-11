@@ -1,0 +1,112 @@
+﻿:root {
+  --bg: #f6f3ef;
+  --ink: #1f1a17;
+  --panel: #ffffff;
+  --accent: #d26a2c;
+  --back: #f29a2e;
+  --red: #d84a4a;
+  --blue: #3a6dd8;
+  --purple: #7a4ad8;
+  --gray: #666666;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: "Noto Sans JP", "Hiragino Kaku Gothic Pro", "Meiryo", sans-serif;
+  background: radial-gradient(1200px 600px at 20% -10%, #ffe7d6, transparent 60%), var(--bg);
+  color: var(--ink);
+}
+header { padding: 20px 24px 6px; }
+h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: 0.02em; }
+.sub { font-size: 13px; color: #5b4f47; }
+main { padding: 16px 24px 28px; display: grid; gap: 16px; }
+.row { display: grid; gap: 12px; }
+.panel {
+  background: var(--panel);
+  border: 2px solid #f0e6df;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff3e8; border: 1px solid #f1e2d6; padding: 6px 10px; border-radius: 999px;
+  font-size: 13px; color: #4b3b30;
+}
+.toggle input { transform: translateY(1px); }
+.prompt {
+  display: none; align-items: center; gap: 8px; padding: 6px 10px;
+  background: #fff0e0; border: 1px solid #f2d5bf; border-radius: 10px;
+  font-size: 13px; color: #6a3d1f;
+}
+.prompt.show { display: inline-flex; }
+.yaku {
+  margin-top: 6px; font-size: 13px; color: #4b3b30;
+  background: #fff7ef; border: 1px solid #f1e2d6; padding: 6px 10px; border-radius: 10px;
+  display: inline-block;
+}
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.modal.show { display: flex; }
+.modal-card {
+  background: #fffaf6; border: 2px solid #f0e6df; border-radius: 16px; padding: 16px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18); width: min(1400px, 98vw);
+}
+.modal-title { font-weight: 900; margin-bottom: 8px; }
+.modal-section { margin-top: 10px; }
+.modal-tiles { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: hidden; padding-bottom: 4px; }
+.debug-menu { margin-top: 8px; }
+.debug-menu summary { cursor: pointer; font-weight: 800; }
+.debug-menu .controls { margin-top: 8px; }
+.modal-actions { margin-top: 14px; display: flex; justify-content: flex-end; }
+button {
+  background: #1f1a17; color: white; border: 0; padding: 8px 12px; border-radius: 10px;
+  cursor: pointer; font-weight: 700; letter-spacing: 0.02em;
+}
+button.secondary { background: #f1e2d6; color: #4b3b30; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+.status { font-size: 14px; color: #5b4f47; }
+.area-title { font-weight: 800; margin-bottom: 6px; }
+.hand, .river { display: flex; flex-wrap: wrap; gap: 6px; }
+.river { min-height: 110px; align-content: flex-start; }
+.hand.small .tile { width: 56px; height: 78px; }
+.kan-area, .pon-area { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.tile {
+  width: 68px; height: 96px; padding: 6px 6px; border-radius: 10px; color: white;
+  font-weight: 800; cursor: pointer; user-select: none; border: 2px solid rgba(0,0,0,0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  display: flex; align-items: center; justify-content: center;
+  writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0.08em;
+  position: relative;
+}
+.tile:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.14); }
+.tile.drawn { outline: 3px solid #ffe08a; box-shadow: 0 0 0 3px rgba(255,224,138,0.4); }
+.tile.red { background: var(--red); }
+.tile.blue { background: var(--blue); }
+.tile.purple { background: var(--purple); }
+.tile.gray { background: var(--gray); }
+.tile.back { background: var(--back); }
+.tile.placeholder {
+  background: transparent; border: 2px dashed #e0d6cf; color: transparent;
+  box-shadow: none; cursor: default;
+}
+.tile.pon { box-shadow: inset 0 0 0 2px #ffe08a; }
+.tile.kan { box-shadow: inset 0 0 0 2px #8ad4ff; }
+.tile.pon::after,
+.tile.kan::after {
+  position: absolute; top: 2px; left: 4px; font-size: 10px; font-weight: 900;
+  background: rgba(255,255,255,0.85); color: #3b2a20; padding: 1px 3px; border-radius: 6px;
+}
+.tile.pon::after { content: "ポ"; }
+.tile.kan::after { content: "カ"; }
+.pile { display: flex; align-items: center; gap: 10px; }
+.count { font-weight: 800; }
+.log { font-size: 13px; line-height: 1.5; max-height: 160px; overflow: auto; }
+.badge { background: #f6eee7; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.active { outline: 3px solid #ffd1a3; }
+@media (max-width: 720px) {
+  .tile { width: 60px; height: 86px; }
+  main { padding: 12px; }
+}

@@ -88,7 +88,9 @@ const el = {
   btnDebugRon: document.getElementById("btnDebugRon"),
   yakuModal: document.getElementById("yakuModal"),
   yakuListBody: document.getElementById("yakuListBody"),
-  btnYakuClose: document.getElementById("btnYakuClose")
+  btnYakuClose: document.getElementById("btnYakuClose"),
+  drawModal: document.getElementById("drawModal"),
+  btnDrawNew: document.getElementById("btnDrawNew")
 };
 
 function buildDeck() {
@@ -200,6 +202,7 @@ function initHands(playerHand, opponentHand, options = {}) {
   state.dealing = true;
   el.yakuResult.textContent = "役: なし";
   closeWinModal();
+  closeDrawModal();
   log("新規開始: 13枚配牌");
   dealAnimation(playerHand, opponentHand, options);
 }
@@ -308,6 +311,7 @@ function drawTile() {
   const tile = state.deck.shift();
   if (!tile) {
     log("山札が尽きた");
+    declareDraw();
     return;
   }
   state.player.push(tile);
@@ -340,6 +344,10 @@ function discardFromPlayer(index) {
   state.lastDrawFromKan = false;
   state.lastDrawFromDeck = false;
   render();
+  if (state.deck.length === 0) {
+    declareDraw();
+    return;
+  }
   setTimeout(opponentTurn, 600);
 }
 
@@ -348,8 +356,7 @@ function opponentTurn() {
   const tile = state.deck.shift();
   if (!tile) {
     log("山札が尽きた");
-    state.turn = "player";
-    render();
+    declareDraw();
     return;
   }
   state.opponent.push(tile);
@@ -381,6 +388,10 @@ function opponentTurn() {
     state.lastDrawFromKan = false;
     state.lastDrawFromDeck = false;
     render();
+    if (state.deck.length === 0) {
+      declareDraw();
+      return;
+    }
     autoDrawIfNeeded();
   }
 }
@@ -556,6 +567,16 @@ function closeWinModal() {
   el.winYaku.textContent = "なし";
 }
 
+function openDrawModal() {
+  el.drawModal.classList.add("show");
+  el.drawModal.setAttribute("aria-hidden", "false");
+}
+
+function closeDrawModal() {
+  el.drawModal.classList.remove("show");
+  el.drawModal.setAttribute("aria-hidden", "true");
+}
+
 function openYakuModal() {
   const list = [
     { name: "Re;IRIS", cond: "咲季・手毬・ことねが各3枚以上" },
@@ -697,7 +718,19 @@ function skipPon() {
   state.pendingPon = false;
   state.pendingPonTile = null;
   render();
+  if (state.deck.length === 0) {
+    declareDraw();
+    return;
+  }
   autoDrawIfNeeded();
+}
+
+function declareDraw() {
+  if (!state.started) return;
+  state.started = false;
+  log("流局");
+  openDrawModal();
+  render();
 }
 
 function playDiscardSfx() {
@@ -869,6 +902,7 @@ bindClick(el.btnTsumo, declareWin);
 bindClick(el.btnSkip, skipPon);
 bindClick(el.btnYakuList, openYakuModal);
 bindClick(el.btnYakuClose, closeYakuModal);
+bindClick(el.btnDrawNew, () => deal(false, false, false));
 if (el.chkAutoSort) el.chkAutoSort.onchange = () => {
   state.autoSort = el.chkAutoSort.checked;
   if (state.autoSort) sortHand(state.player);

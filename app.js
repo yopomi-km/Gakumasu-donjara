@@ -45,10 +45,12 @@ const state = {
 
 const sfx = {
   discard: new Audio("hai_set.mp3"),
-  draw: new Audio("hai_draw.mp3")
+  draw: new Audio("hai_draw.mp3"),
+  ponkan: new Audio("ponkan.mp3")
 };
 sfx.discard.volume = 0.5;
 sfx.draw.volume = 0.5;
+sfx.ponkan.volume = 0.5;
 
 const el = {
   pHand: document.getElementById("pHand"),
@@ -379,6 +381,7 @@ function opponentTurn() {
     state.turn = "player";
     state.drawnThisTurn = false;
     state.lastDrawnId = null;
+    playPonkanSfx();
     render();
   } else {
     state.turn = "player";
@@ -746,6 +749,15 @@ function playDrawSfx() {
   try {
     sfx.draw.currentTime = 0;
     sfx.draw.play();
+  } catch (e) {
+    // Ignore autoplay restrictions or playback errors
+  }
+}
+
+function playPonkanSfx() {
+  try {
+    sfx.ponkan.currentTime = 0;
+    sfx.ponkan.play();
   } catch (e) {
     // Ignore autoplay restrictions or playback errors
   }

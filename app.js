@@ -760,23 +760,27 @@ function render() {
   }
 }
 
-el.btnNew.onclick = () => deal(false, false, false);
-el.btnDraw.onclick = drawTile;
-el.btnKan.onclick = declareKan;
-el.btnDebug.onclick = () => deal(true, false, false);
-el.btnDebugPon.onclick = () => deal(false, true, false);
-el.btnDebugReiris.onclick = () => deal(false, false, true);
-el.btnDebugBegrazia.onclick = () => dealYaku("begrazia");
-el.btnDebugSyngUp.onclick = () => dealYaku("syngup");
-el.btnDebugRed.onclick = () => dealYaku("red");
-el.btnDebugBlue.onclick = () => dealYaku("blue");
-el.btnDebugPurple.onclick = () => dealYaku("purple");
-el.btnWinNew.onclick = () => deal(false, false, false);
-el.btnPon.onclick = executePon;
-el.btnRon.onclick = executeRon;
-el.btnTsumo.onclick = declareWin;
-el.btnSkip.onclick = skipPon;
-el.chkAutoSort.onchange = () => {
+function bindClick(node, handler) {
+  if (node) node.onclick = handler;
+}
+
+bindClick(el.btnNew, () => deal(false, false, false));
+bindClick(el.btnDraw, drawTile);
+bindClick(el.btnKan, declareKan);
+bindClick(el.btnDebug, () => deal(true, false, false));
+bindClick(el.btnDebugPon, () => deal(false, true, false));
+bindClick(el.btnDebugReiris, () => deal(false, false, true));
+bindClick(el.btnDebugBegrazia, () => dealYaku("begrazia"));
+bindClick(el.btnDebugSyngUp, () => dealYaku("syngup"));
+bindClick(el.btnDebugRed, () => dealYaku("red"));
+bindClick(el.btnDebugBlue, () => dealYaku("blue"));
+bindClick(el.btnDebugPurple, () => dealYaku("purple"));
+bindClick(el.btnWinNew, () => deal(false, false, false));
+bindClick(el.btnPon, executePon);
+bindClick(el.btnRon, executeRon);
+bindClick(el.btnTsumo, declareWin);
+bindClick(el.btnSkip, skipPon);
+if (el.chkAutoSort) el.chkAutoSort.onchange = () => {
   state.autoSort = el.chkAutoSort.checked;
   if (state.autoSort) sortHand(state.player);
   render();

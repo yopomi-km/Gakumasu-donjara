@@ -23,6 +23,7 @@
         <div class="badge" id="turnBadge">先手</div>
       </div>
       <div class="yaku" id="yakuResult">役: なし</div>
+      <button id="btnYakuList" class="secondary">役一覧</button>
       <span class="status" id="status">準備中</span>
     </section>
 
@@ -77,6 +78,17 @@
       </div>
       <div class="modal-actions">
         <button id="btnWinNew">新規開始</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="yakuModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-title">役一覧</div>
+      <div class="modal-section">
+        <div id="yakuListBody"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="btnYakuClose">閉じる</button>
       </div>
     </div>
   </div>

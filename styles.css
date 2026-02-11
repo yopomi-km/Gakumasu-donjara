@@ -89,6 +89,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .tile.nolabel { color: transparent; text-shadow: none; }
 .tile:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.14); }
 .tile.drawn { outline: 3px solid #ffe08a; box-shadow: 0 0 0 3px rgba(255,224,138,0.4); }
+.hand .tile.drawn { margin-left: 10px; }
 .tile.red { background: var(--red); }
 .tile.blue { background: var(--blue); }
 .tile.purple { background: var(--purple); }

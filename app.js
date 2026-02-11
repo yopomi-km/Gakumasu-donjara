@@ -43,6 +43,13 @@ const state = {
   dealing: false
 };
 
+const sfx = {
+  discard: new Audio("hai_set.mp3"),
+  draw: new Audio("hai_draw.mp3")
+};
+sfx.discard.volume = 0.5;
+sfx.draw.volume = 0.5;
+
 const el = {
   pHand: document.getElementById("pHand"),
   oHand: document.getElementById("oHand"),
@@ -73,11 +80,15 @@ const el = {
   btnRon: document.getElementById("btnRon"),
   btnTsumo: document.getElementById("btnTsumo"),
   yakuResult: document.getElementById("yakuResult"),
+  btnYakuList: document.getElementById("btnYakuList"),
   winModal: document.getElementById("winModal"),
   winTiles: document.getElementById("winTiles"),
   winYaku: document.getElementById("winYaku"),
   btnWinNew: document.getElementById("btnWinNew"),
-  btnDebugRon: document.getElementById("btnDebugRon")
+  btnDebugRon: document.getElementById("btnDebugRon"),
+  yakuModal: document.getElementById("yakuModal"),
+  yakuListBody: document.getElementById("yakuListBody"),
+  btnYakuClose: document.getElementById("btnYakuClose")
 };
 
 function buildDeck() {
@@ -208,6 +219,8 @@ function dealAnimation(playerHand, opponentHand, options) {
       const o = oQueue.shift();
       if (p) state.player.push(p);
       if (o) state.opponent.push(o);
+      if (p) playDrawSfx();
+      if (o) playDrawSfx();
     }
     render();
     idx += 1;
@@ -301,6 +314,7 @@ function drawTile() {
   sortHandIfNeeded(state.player);
   state.drawnThisTurn = true;
   state.lastDrawnId = tile.id;
+  playDrawSfx();
   state.lastDrawFromKan = false;
   state.lastDrawFromDeck = true;
   log(`あなたがツモ: ${tile.name}`);
@@ -317,6 +331,7 @@ function discardFromPlayer(index) {
   const [tile] = state.player.splice(index, 1);
   sortHandIfNeeded(state.player);
   state.riverP.push({ tile, by: "player" });
+  playDiscardSfx();
   log(`あなたの捨て牌: ${tile.name}`);
   state.turn = "opponent";
   state.drawnThisTurn = false;
@@ -349,6 +364,7 @@ function opponentTurn() {
   }
   const [discarded] = state.opponent.splice(discardIndex, 1);
   state.riverO.push({ tile: discarded, by: "opponent" });
+  playDiscardSfx();
   log(`相手の捨て牌: ${discarded.name}`);
   if (canPon(discarded)) {
     state.pendingPon = true;
@@ -455,6 +471,21 @@ function checkYaku() {
   if ((counts.get("手毬") || 0) >= 3 && (counts.get("美鈴") || 0) >= 3 && (counts.get("燐羽") || 0) >= 3) {
     yaku.push("SyngUp!");
   }
+  if ((counts.get("燐羽") || 0) >= 3 && (counts.get("四音") || 0) >= 3 && (counts.get("撫子") || 0) >= 3 && (counts.get("月花") || 0) >= 3) {
+    yaku.push("極月学園へようこそ");
+  }
+  if ((counts.get("広") || 0) >= 3 && (counts.get("千奈") || 0) >= 3) {
+    yaku.push("ユメパシー");
+  }
+  if ((counts.get("咲季") || 0) >= 3 && (counts.get("星南") || 0) >= 3) {
+    yaku.push("一番星");
+  }
+  if ((counts.get("千奈") || 0) >= 1 && (counts.get("広") || 0) >= 1 && (counts.get("佑芽") || 0) >= 1) {
+    yaku.push("補習組");
+  }
+  if ((counts.get("佑芽") || 0) >= 3 && (counts.get("咲季") || 0) >= 3) {
+    yaku.push("花海姉妹");
+  }
   if (["咲季", "手毬", "ことね", "リーリヤ", "清夏"].every((n) => (counts.get(n) || 0) >= 1)) {
     yaku.push("SUPREMACY");
   }
@@ -523,6 +554,44 @@ function closeWinModal() {
   el.winModal.setAttribute("aria-hidden", "true");
   el.winTiles.innerHTML = "";
   el.winYaku.textContent = "なし";
+}
+
+function openYakuModal() {
+  const list = [
+    { name: "Re;IRIS", cond: "咲季・手毬・ことねが各3枚以上" },
+    { name: "Begrazia", cond: "佑芽・美鈴・星南が各3枚以上" },
+    { name: "SyngUp!", cond: "手毬・美鈴・燐羽が各3枚以上" },
+    { name: "極月学園へようこそ", cond: "燐羽・四音・撫子・月花が各3枚以上" },
+    { name: "ユメパシー", cond: "広・千奈が各3枚以上" },
+    { name: "一番星", cond: "咲季・星南が各3枚以上" },
+    { name: "補習組", cond: "千奈・広・佑芽が各1枚以上" },
+    { name: "花海姉妹", cond: "佑芽3枚＋咲季3枚" },
+    { name: "SUPREMACY", cond: "咲季・手毬・ことね・リーリヤ・清夏が各1枚以上" },
+    { name: "Let's GO!! ICHI-NO-NI!!", cond: "佑芽・千奈・美鈴・広が各1枚以上" },
+    { name: "ナイワ", cond: "星南・麻央・莉波・燕が各1枚以上" },
+    { name: "三暗刻", cond: "暗刻が3組以上" },
+    { name: "四暗刻", cond: "暗刻が4組以上" },
+    { name: "三槓子", cond: "カンが3回以上" },
+    { name: "四槓子", cond: "カンが4回以上" },
+    { name: "天和", cond: "初手ツモで上がり" },
+    { name: "地和", cond: "相手1枚捨て後に上がり" },
+    { name: "嶺上開花", cond: "嶺上ツモで上がり" },
+    { name: "海底摸月", cond: "最後のツモで上がり" }
+  ];
+  el.yakuListBody.innerHTML = "";
+  list.forEach((y) => {
+    const row = document.createElement("div");
+    row.style.marginBottom = "6px";
+    row.innerHTML = `<strong>${y.name}</strong>：${y.cond}`;
+    el.yakuListBody.appendChild(row);
+  });
+  el.yakuModal.classList.add("show");
+  el.yakuModal.setAttribute("aria-hidden", "false");
+}
+
+function closeYakuModal() {
+  el.yakuModal.classList.remove("show");
+  el.yakuModal.setAttribute("aria-hidden", "true");
 }
 
 function canPon(tile) {
@@ -629,6 +698,24 @@ function skipPon() {
   state.pendingPonTile = null;
   render();
   autoDrawIfNeeded();
+}
+
+function playDiscardSfx() {
+  try {
+    sfx.discard.currentTime = 0;
+    sfx.discard.play();
+  } catch (e) {
+    // Ignore autoplay restrictions or playback errors
+  }
+}
+
+function playDrawSfx() {
+  try {
+    sfx.draw.currentTime = 0;
+    sfx.draw.play();
+  } catch (e) {
+    // Ignore autoplay restrictions or playback errors
+  }
 }
 
 function moveTile(fromIndex, toIndex) {
@@ -780,13 +867,15 @@ bindClick(el.btnPon, executePon);
 bindClick(el.btnRon, executeRon);
 bindClick(el.btnTsumo, declareWin);
 bindClick(el.btnSkip, skipPon);
+bindClick(el.btnYakuList, openYakuModal);
+bindClick(el.btnYakuClose, closeYakuModal);
 if (el.chkAutoSort) el.chkAutoSort.onchange = () => {
   state.autoSort = el.chkAutoSort.checked;
   if (state.autoSort) sortHand(state.player);
   render();
 };
 
-el.btnDebugRon.onclick = () => {
+bindClick(el.btnDebugRon, () => {
   const target = CHARACTERS[3];
   const ronTiles = [];
   state.deck = buildDeck();
@@ -799,6 +888,6 @@ el.btnDebugRon.onclick = () => {
   });
   initHands(ronTiles.concat(state.deck.splice(0, 11)), state.deck.splice(0, 13));
   state.forceRonName = target.name;
-};
+});
 
 render();
